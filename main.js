@@ -14,15 +14,15 @@ function getArg(chunk, i) {
 };
 
 function sell(n) {
-    process.stdout.write('sell ' + n + '\n');
+    console.log('sell ' + n);
 }
 
 function buy(n) {
-    process.stdout.write('buy ' + n + '\n');
+    console.log('buy ' + n);
 }
 
 function wait() {
-    process.stdout.write('wait' + '\n');
+    console.log('wait');
 }
 
 function main() {
