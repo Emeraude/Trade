@@ -40,7 +40,8 @@ function main() {
     rl.on('line', function (chunk) {
 
     	    console.error("index: " + i);
-    	if (chunk == '--end--\n')
+    	if (chunk == '--end--\n' || chunk == '--END--\n'
+	    || chunk == '-end-\n' || chunk == '-END-\n')
     	    process.exit(0);
     	if (i < 2) {
     	    getArg(chunk, i);
@@ -48,7 +49,7 @@ function main() {
     	else {
     	    values.push(chunk);
     	    if (i > 2 && values[values.length - 1] > values[values.length - 2])
-    	    	buy(1);
+    	    	wait();
     	    else
     	    	wait();
     	}
