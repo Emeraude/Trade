@@ -40,16 +40,16 @@ function main() {
     rl.on('line', function (chunk) {
 
     	    console.error("index: " + i);
-    	if (chunk == '--end--\n' || chunk == '--END--\n'
-	    || chunk == '-end-\n' || chunk == '-END-\n')
+    	if (chunk == '--end--' || chunk == '--END--'
+	    || chunk == '-end-' || chunk == '-END-')
     	    process.exit(0);
-    	if (i < 2) {
+    	else if (i < 2) {
     	    getArg(chunk, i);
     	}
     	else {
     	    values.push(chunk);
     	    if (i > 2 && values[values.length - 1] > values[values.length - 2])
-    	    	wait();
+    	    	;
     	    else
     	    	wait();
     	}
