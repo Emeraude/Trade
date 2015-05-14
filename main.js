@@ -57,8 +57,9 @@ function main() {
 	else if (i > days)
 	    wait()
     	else {
-    	    values.push(chunk);
-    	    if (i > 2 && capital > chunk && values[values.length - 1] < values[values.length - 2])
+    	    values.push(parseInt(chunk, 10));
+    	    if (i > 2 && capital > values[values.length - 1]
+		&& values[values.length - 1] > values[values.length - 2])
     	    	buy(3);
     	    else if (actions > 0)
     	    	sell(1);
