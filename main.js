@@ -11,7 +11,8 @@ var rl = readline.createInterface({
 // process.stdin.setEncoding('utf8');
 var capital;
 var days;
-    var actions = 0;
+var actions = 0;
+var values = [];
 
 function getArg(chunk, i) {
     if (i == 0)
@@ -35,37 +36,36 @@ function wait() {
     console.log('wait');
 }
 
+function decisionMaker(day) {
+    if (day > 2 && capital > values[values.length - 1]
+	&& values[values.length - 1] > values[values.length - 2])
+    	buy(3);
+    else if (actions > 0)
+    	sell(1);
+    else
+	wait()
+}
+
 function main() {
     var i = 0;
-    var values = [];
     rl.on('line', function (chunk) {
 
     	console.error("index: " + i);
 	console.error('days: ' + days)
 	console.error('data: ' + chunk + "\n")
 	    console.error('actions are :' + actions);
-    	if (chunk.match(/\-end\-/i)) {
+    	if (chunk.match(/\-end\-/i))
     	    process.exit(0);
-	}
-    	else if (i < 2) {
+    	else if (i < 2)
     	    getArg(chunk, i);
-    	}
-	else if (i - 1 == days) {
+	else if (i - 1 == days)
 	    sell(actions, actions);
-	    console.error('selling everything at: ' + i + 'action: ' + actions);
-	}
 	else if (i > days)
 	    wait()
     	else {
     	    values.push(parseInt(chunk, 10));
-    	    if (i > 2 && capital > values[values.length - 1]
-		&& values[values.length - 1] > values[values.length - 2])
-    	    	buy(3);
-    	    else if (actions > 0)
-    	    	sell(1);
-	    else
-		wait()
-    	}
+	    decisionMaker(i);
+	}
     	fs.writeFile("tmp.txt", chunk);
     	i = i + 1;
     });
