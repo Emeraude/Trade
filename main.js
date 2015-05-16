@@ -13,6 +13,7 @@ var capital;
 var days;
 var actions = 0;
 var values = [];
+var last = 0;
 
 function getArg(chunk, i) {
     if (i == 0)
@@ -36,37 +37,63 @@ function wait() {
     console.log('wait');
 }
 
+function getMMA(n) {
+    var i = 0;
+    var j = values.length - 1;
+    var average = 0;
+    for (i = 0; i < n && j >= 0 ; ++i) {
+	average += values[j];
+	--j;
+    }
+    average /= i;
+    return (average);
+}
+
 function decisionMaker(day) {
-    if (day > 2 && capital > values[values.length - 1]
-	&& values[values.length - 1] > values[values.length - 2])
-    	buy(3);
-    else if (actions > 0)
-    	sell(1);
+    var mma30 = getMMA(30);
+    var mma5 = getMMA(5);
+    console.error(mma30);
+    console.error(mma5);
+
+    if (mma5 < mma30)
+    	sell(actions);
+    else if (mma5 > mma30)
+    	buy(1);
     else
-	wait()
+    	wait();
+    // if (capital > values[values.length - 1]
+    // 	&& values[values.length - 1] > values[values.length - 2])
+    // 	buy(3);
+    // else if (actions > 0)
+    // 	sell(1);
+    // else
+    // 	wait();
 }
 
 function main() {
     var i = 0;
-    rl.on('line', function (chunk) {
+    rl.on('line', function (data) {
 
     	console.error("index: " + i);
-	console.error('days: ' + days)
-	console.error('data: ' + chunk + "\n")
-	    console.error('actions are :' + actions);
-    	if (chunk.match(/\-end\-/i))
+	// console.error('days: ' + days)
+	// console.error('data: ' + data + "\n")
+ 	    // console.error('actions are :' + actions);
+    	if (data.match(/\-end\-/i))
     	    process.exit(0);
     	else if (i < 2)
-    	    getArg(chunk, i);
+    	    getArg(data, i);
 	else if (i - 1 == days)
 	    sell(actions, actions);
 	else if (i > days)
 	    wait()
-    	else {
-    	    values.push(parseInt(chunk, 10));
-	    decisionMaker(i);
+    	else if (i > 2) {
+    	    values.push(parseInt(data, 10));
+	    decisionMaker(last);
+	    ++last;
 	}
-    	fs.writeFile("tmp.txt", chunk);
+	else
+	    wait();
+    	fs.writeFile("tmp.txt", data);
     	i = i + 1;
     });
 }
