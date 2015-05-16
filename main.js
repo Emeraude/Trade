@@ -25,12 +25,15 @@ function getArg(chunk, i) {
 function sell(n) {
     console.log('sell ' + n);
     actions -= n;
+    capital += Math.ceil((values[last] - (values[last] * 0.15 / 100)) * n);
 }
 
 function buy(n) {
-     // process.stdout.write('buy ' + n);
-    console.log('buy ' + n);
+    console.error('capital before is:' + capital + ' n is : ' + n);
+    console.log('buy ' + Math.ceil(n));
     actions += n;
+    capital -= Math.ceil((values[last] + (values[last] * 0.15 / 100)) * n);
+    console.error('capital after is:' + capital);
 }
 
 function wait() {
@@ -52,13 +55,13 @@ function getMMA(n) {
 function decisionMaker(day) {
     var mma30 = getMMA(30);
     var mma5 = getMMA(5);
-    console.error(mma30);
-    console.error(mma5);
-
+    console.error('mma30 is: ' + mma30);
+    console.error('mma5 is: ' + mma5);
+    console.error('capital is: ' + capital);
     if (mma5 < mma30)
     	sell(actions);
     else if (mma5 > mma30)
-    	buy(1);
+    	buy(Math.floor(capital / Math.ceil((values[last] + (values[last] * 0.15) / 100))));
     else
     	wait();
     // if (capital > values[values.length - 1]
@@ -74,7 +77,8 @@ function main() {
     var i = 0;
     rl.on('line', function (data) {
 
-    	console.error("index: " + i);
+    	console.error("\nindex: " + i);
+	console.error('capital is :' + capital);
 	// console.error('days: ' + days)
 	// console.error('data: ' + data + "\n")
  	    // console.error('actions are :' + actions);
