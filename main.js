@@ -25,14 +25,14 @@ function getArg(chunk, i) {
 function sell(n) {
     console.log('sell ' + n);
     actions -= n;
-    capital += Math.ceil((values[last] - (values[last] * 0.15 / 100)) * n);
+    capital += Math.ceil((values[last] - values[last] * 0.15 / 100)) * n;
 }
 
 function buy(n) {
     console.error('capital before is:' + capital + ' n is : ' + n);
-    console.log('buy ' + Math.ceil(n));
+    console.log('buy ' + n);
     actions += n;
-    capital -= Math.ceil((values[last] + (values[last] * 0.15 / 100)) * n);
+    capital -= Math.ceil((values[last] + values[last] * 0.15 / 100)) * n;
     console.error('capital after is:' + capital);
 }
 
@@ -81,15 +81,15 @@ function main() {
 	console.error('capital is :' + capital);
 	// console.error('days: ' + days)
 	// console.error('data: ' + data + "\n")
- 	    // console.error('actions are :' + actions);
+ 	// console.error('actions are :' + actions);
     	if (data.match(/\-end\-/i))
     	    process.exit(0);
     	else if (i < 2)
     	    getArg(data, i);
-	else if (i - 1 == days)
+	else if (last == days)
 	    sell(actions, actions);
 	else if (i > days)
-	    wait()
+	    wait();
     	else if (i > 2) {
     	    values.push(parseInt(data, 10));
 	    decisionMaker(last);
