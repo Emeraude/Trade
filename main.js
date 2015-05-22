@@ -15,7 +15,11 @@ var actions = 0;
 
 var values = [];
 var macdTab = [];
-
+var mma5Tab = [];
+var mma30Tab = [];
+var mma150Tab = [];
+var ema12Tab = [];
+var ema24Tab = [];
 var last = 0;
 
 var costAction = 0;
@@ -49,10 +53,10 @@ function wait() {
 
 function getMMA(data, n) {
     var i = 0;
-    var j = last + 1;
+    var j = last;
     var average = 0;
 
-    for (i = 0; i <= n && j >= 0 ; ++i) {
+    for (i = 0; i < n && j >= 0 ; ++i) {
 	average += data[j];
 	--j;
     }
@@ -66,12 +70,13 @@ function getEMA(n) {
     var i = 0;
     var average = 0;
 
-    if (n > values.length)
-	n = values.length;
+    if (n > last)
+	n = last;
     else
-	n = values.length - n;
+	n = last - n;
 
     for (i = n; i <= last; ++i) {
+	console.error("[" + n + "] " + values[i]);
 	average = average * (1 - EMAcoef) + values[i] * EMAcoef;
     }
     return average;
@@ -82,6 +87,7 @@ function getMACD() {
 }
 
 var kTab = [];
+var dTab = [];
 function getStochastique(n2) {
     var k;
     var d;
@@ -112,6 +118,7 @@ function getStochastique(n2) {
     k = 100 * ( (values[last] - lowest) / (highest - lowest) );
     kTab.push(k);
     d = 3 - getMMA(kTab, 12);
+    dTab.push(d);
     console.error("k is :" + k);
     return k;
 }
@@ -125,9 +132,17 @@ function decisionMaker(day) {
     var mma30 = getMMA(values, 30);
     var mma5 = getMMA(values, 5);
     var ema12 = getEMA(12);
+    var ema24 = getEMA(24);
     var macd = getMACD();
     var stoch = getStochastique(14);
 
+
+    mma5Tab.push(mma5);
+    mma30Tab.push(mma30);
+    mma150Tab.push(mma150);
+    ema12Tab.push(ema12);
+    ema24Tab.push(ema24);
+    console.error('mma is : ' + mma5);
     // console.error('EMA12 is: ' + ema12);
     // console.error('MACD is: ' + macd);
     // if (ema12 < mma5)
@@ -171,6 +186,8 @@ function decisionMaker(day) {
 
 }
 
+var dir = "print/";
+
 function main() {
     var i = 0;
     rl.on('line', function (data) {
@@ -182,9 +199,9 @@ function main() {
 	// console.error('data: ' + data + "\n")
  	// console.error('actions are :' + actions);
 
-    	if (data.match(/\-end\-/i))
+    	if (data.match(/\-end\-/i)) {
     	    process.exit(0);
-	    // return (0);
+	}
     	else if (i < 2)
     	    getArg(data, i);
 	else if (i - 1 == days)
@@ -193,15 +210,24 @@ function main() {
 	    wait();
     	else if (i > 2) {
     	    values.push(parseInt(data, 10));
+	fs.writeFile(dir + "ibm_data.txt", JSON.stringify(values));
+	fs.writeFile(dir + "ibm_ktab.txt", JSON.stringify(kTab));
+	fs.writeFile(dir + "ibm_macd.txt", JSON.stringify(macdTab));
+	fs.writeFile(dir + "ibm_dtab.txt", JSON.stringify(dTab));
+	fs.writeFile(dir + "ibm_mma5.txt", JSON.stringify(mma5Tab));
+	fs.writeFile(dir + "ibm_mma30.txt", JSON.stringify(mma30Tab));
+	fs.writeFile(dir + "ibm_mma150.txt", JSON.stringify(mma150Tab));
+	fs.writeFile(dir + "ibm_mma12.txt", JSON.stringify(ema12Tab));
+	fs.writeFile(dir + "ibm_mma24.txt", JSON.stringify(ema24Tab));
 	    macdTab.push(getMACD());
 	    decisionMaker(last);
 	    ++last;
 	}
 	else
 	    wait();
-    	fs.writeFile("tmp.txt", data);
     	i = i + 1;
     });
+    return (i);
 }
 
 main();
