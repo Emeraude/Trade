@@ -1,0 +1,15 @@
+Trend:
+
+	- 3 droites
+	- droite sur les valeurs maximal
+	- droite sur les valeurs minimal
+
+MMA: (Moyennes Mobiles)
+
+	- créer trois MMA avec nombres de jours dynamiques.
+	- reperer le croisement des courbes.
+	- faire une moyenne des courbes (MACD ? ecart type?)
+	  	  a chaque croisement, on peut supposer une action a  prendre
+	- adapter les valeurs de la MMA à la longévité de l'action.
+	  	  un pourcentage et une valeur si la longévité est assez longue?
+
