@@ -3,4 +3,4 @@ error.file
 *\#*
 tmp.txt
 test.js
-print
+print/*.txt
