@@ -312,7 +312,8 @@ function	trade(&$a_trade, $a_opt)
 			if (isset($a_opt['o']))
 			{
 				echo '['.trim($a_trade['data'][$a_trade['currentDay']], "\n").'] -> ';
-				echo trim($a_trade['action'][$a_trade['actionIndex'] - 1], "\n")."\n";
+				echo trim($a_trade['action'][$a_trade['actionIndex'] - 1], "\n");
+                echo ' ('.$a_trade['currentMoney'].")\n";
 			}
 			fwrite($a_pipes[IN], @$a_trade['data'][++$a_trade['currentDay']]);
 		}
