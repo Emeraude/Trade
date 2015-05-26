@@ -31,18 +31,34 @@ function getArg(chunk, i) {
 	days = chunk;
 };
 
+function getMaxActionToBuy() {
+    return Math.floor(capital / Math.ceil((values[last] + (values[last] * 0.15) / 100))) - 1;
+}
+
 function sell(n) {
+    if (!n) {
+	wait();
+	return ;
+    }
+
     console.log('sell ' + n);
     actions -= n;
-    capital += Math.ceil((values[last] - values[last] * 0.15 / 100)) * n;
+    // capital += Math.ceil(values[last] * n * 0.15 / 100)
+    capital += values[last] * n - Math.ceil(values[last] * n * 0.15 / 100);
 }
 
 function buy(n) {
+    if (!n) {
+    	wait();
+    	return ;
+    }
+    // else 
+    
     console.error('capital before is:' + capital + ' n is : ' + n);
-
     console.log('buy ' + n);
     actions += n;
-    capital -= Math.ceil((values[last] + values[last] * 0.15 / 100)) * n;
+    // capital -= Math.ceil(values[last] * n * 1.15);
+    capital -= values[last] * n + Math.ceil(values[last] * n * 0.15 / 100);
     costAction = values[last];
     console.error('capital after is:' + capital);
 }
@@ -76,7 +92,7 @@ function getEMA(n) {
 	n = last - n;
 
     for (i = n; i <= last; ++i) {
-	console.error("[" + n + "] " + values[i]);
+	// console.error("[" + n + "] " + values[i]);
 	average = average * (1 - EMAcoef) + values[i] * EMAcoef;
     }
     return average;
@@ -96,35 +112,46 @@ function getStochastique(n2) {
     var highest = values[last]; //highest hight
     var lowest = values[last]; // lowest low
 
-    console.error("i is :" + i + ", last: " + last + ", n: " + n2);
+    // console.error("i is :" + i + ", last: " + last + ", n: " + n2);
     if (n2 > last)
 	n2 = last + 1;
     else
 	n2 = last - n2 + 1;
 
     for (i = n2; i < last; ++i) {
-	console.error(values[i]);
+	// console.error(values[i]);
 	if (lowest > values[i])
 	    lowest = values[i];
 	if (highest < values[i])
 	    highest = values[i];
     }
-    console.error('last: '+ values[last]);
-    console.error("");
-    console.error("highest is :" + highest);
-    console.error("lowest is :" + lowest);
 
     //should not be values which is from open, should be close
     k = 100 * ( (values[last] - lowest) / (highest - lowest) );
     kTab.push(k);
     d = 3 - getMMA(kTab, 12);
     dTab.push(d);
-    console.error("k is :" + k);
+    // console.error("k is :" + k);
     return k;
 }
 
-function getMaxActionToBuy() {
-    return Math.floor(capital / Math.ceil((values[last] + (values[last] * 0.15) / 100)));
+function getQuickFall() {
+    if (last < 3)
+	return ;
+    var n = 3;
+    var mma3 = getMMA(values, 3);
+
+    var i = 0;
+    var j = last - 3;
+    var average = 0;
+
+    for (i = 0; i < n && j >= 0 ; ++i) {
+	average += values[j];
+	--j;
+    }
+    average /= i;
+
+    return mma3 - average;
 }
 
 function decisionMaker(day) {
@@ -142,44 +169,48 @@ function decisionMaker(day) {
     mma150Tab.push(mma150);
     ema12Tab.push(ema12);
     ema24Tab.push(ema24);
-    console.error('mma is : ' + mma5);
+
     // console.error('EMA12 is: ' + ema12);
     // console.error('MACD is: ' + macd);
-    // if (ema12 < mma5)
-    // 	console.error('inferior: ' + (mma5 - ema12));
-    // else
-    // 	console.error('superior');
     // console.error('mma150 is: ' + mma150);
     // console.error('mma30 is: ' + mma30);
     // console.error('mma5 is: ' + mma5);
     // console.error('capital is: ' + capital);
 
-    if (stoch > 80 && actions > 0)
+    var tmp = getMMA(macdTab, 10);
+    if (getQuickFall() > 0 || tmp < macd)
     	sell(actions);
-    else if (stoch < 20 && capital > values[last])
+    else if (macd > 0 || tmp > macd)
     	buy(getMaxActionToBuy());
     else
-    	wait();   
+    	wait();
+
+    // if (kTab[last] > 80)
+    // 	sell(actions);
+    // else if (kTab[last] < 20)
+    // 	buy(Math.floor(getMaxActionToBuy() / 1));
+    // else
+    // 	wait();   
 
     // var tmp = getMMA(macdTab, 10);
-    // if (tmp < macd && actions > 0)
+    // if (tmp < macd)
     // 	sell(actions);
-    // else if (macd > 0 || tmp > macd && capital > values[last])
+    // else if (macd > 0 || tmp > macd)
     // 	buy(getMaxActionToBuy());
     // else
     // 	wait();
 
     //do not work
-    // if (macd < 0 && actions > 0)
+    // if (macd < 0)
     // 	sell(actions);
-    // else if (macd > 0 && capital > values[last])
+    // else if (macd > 0)
     // 	buy(getMaxActionToBuy());
     // else
     // 	wait();
 
-    // if (mma5 < mma30 && actions > 0)
+    // if (mma5 < mma30)
     // 	sell(actions);
-    // else if (mma5 > mma30 && capital > values[last])
+    // else if (mma5 > mma30)
     // 	buy(getMaxActionToBuy());
     // else
     // 	wait();
@@ -192,11 +223,11 @@ function main() {
     var i = 0;
     rl.on('line', function (data) {
 
-    	// console.error("\nindex: " + i + ' || ' + last);
-	// console.error('capital is :' + capital);
+    	console.error("\nindex: " + i + ' || ' + last);
+	console.error('capital is :' + capital);
 	// console.error('days: ' + days)
 
-	// console.error('data: ' + data + "\n")
+	console.error('data: ' + data + "\n")
  	// console.error('actions are :' + actions);
 
     	if (data.match(/\-end\-/i)) {
@@ -217,8 +248,8 @@ function main() {
 	fs.writeFile(dir + "ibm_mma5.txt", JSON.stringify(mma5Tab));
 	fs.writeFile(dir + "ibm_mma30.txt", JSON.stringify(mma30Tab));
 	fs.writeFile(dir + "ibm_mma150.txt", JSON.stringify(mma150Tab));
-	fs.writeFile(dir + "ibm_mma12.txt", JSON.stringify(ema12Tab));
-	fs.writeFile(dir + "ibm_mma24.txt", JSON.stringify(ema24Tab));
+	fs.writeFile(dir + "ibm_ema12.txt", JSON.stringify(ema12Tab));
+	fs.writeFile(dir + "ibm_ema24.txt", JSON.stringify(ema24Tab));
 	    macdTab.push(getMACD());
 	    decisionMaker(last);
 	    ++last;
