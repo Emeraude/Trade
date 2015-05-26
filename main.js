@@ -23,6 +23,7 @@ var ema24Tab = [];
 var last = 0;
 
 var costAction = 0;
+var history = [];
 
 function getArg(chunk, i) {
     if (i == 0)
@@ -32,7 +33,8 @@ function getArg(chunk, i) {
 };
 
 function getMaxActionToBuy() {
-    return Math.floor(capital / Math.ceil((values[last] + (values[last] * 0.15) / 100))) - 1;
+    var n = capital / (values[last] + Math.ceil(values[last] * 0.15 / 100));
+    return Math.floor(n);
 }
 
 function sell(n) {
@@ -45,6 +47,7 @@ function sell(n) {
     actions -= n;
     // capital += Math.ceil(values[last] * n * 0.15 / 100)
     capital += values[last] * n - Math.ceil(values[last] * n * 0.15 / 100);
+    history.push(-n);
 }
 
 function buy(n) {
@@ -53,7 +56,6 @@ function buy(n) {
     	return ;
     }
     // else 
-    
     console.error('capital before is:' + capital + ' n is : ' + n);
     console.log('buy ' + n);
     actions += n;
@@ -61,6 +63,7 @@ function buy(n) {
     capital -= values[last] * n + Math.ceil(values[last] * n * 0.15 / 100);
     costAction = values[last];
     console.error('capital after is:' + capital);
+    history.push(n);
 }
 
 function wait() {
@@ -142,20 +145,37 @@ function getQuickFall() {
     var mma3 = getMMA(values, 3);
 
     var i = 0;
-    var j = last - 3;
+    var j = last - 1;
     var average = 0;
 
     for (i = 0; i < n && j >= 0 ; ++i) {
 	average += values[j];
 	--j;
     }
-    average /= i;
+    var firstVal = average / i;
+
+    i = 0;
+    j = last - 2;
+    average = 0;
+    for (i = 0; i < n && j >= 0 ; ++i) {
+	average += values[j];
+	--j;
+    }
+
+    var secondVal = average / i;
+
+    if (mma3 < firstVal && mma3 < secondVal)
+	return 0;
+
+
+    return (firstVal - secondVal > mma3 - firstVal);
 
     return mma3 - average;
 }
 
 function decisionMaker(day) {
     var mma150 = getMMA(values, 150);
+    var mma80 = getMMA(values, 80);
     var mma30 = getMMA(values, 30);
     var mma5 = getMMA(values, 5);
     var ema12 = getEMA(12);
@@ -177,20 +197,31 @@ function decisionMaker(day) {
     // console.error('mma5 is: ' + mma5);
     // console.error('capital is: ' + capital);
 
-    var tmp = getMMA(macdTab, 10);
-    if (getQuickFall() > 0 || tmp < macd)
-    	sell(actions);
-    else if (macd > 0 || tmp > macd)
-    	buy(getMaxActionToBuy());
-    else
-    	wait();
+    if (getMMA(values, day) < values[last]) {
+    	var tmp = getMMA(macdTab, 10);
+    	if ((mma5 < mma30 && kTab[last] > 80) || (kTab[last] > 80) && tmp < macd)
+    	    sell(actions);
+    	else if ((kTab[last] < 20 && tmp > macd))
+    	    buy(getMaxActionToBuy());
+    	else
+    	    wait();
+    } else {
+	
+    	var tmp = getMMA(macdTab, 10);
+    	if ((mma5 < mma30 && kTab[last] > 80) || (kTab[last] > 80) && tmp < macd)
+    	    sell(actions);
+    	else if ((mma5 > mma30 && kTab[last]) || (kTab[last] < 20 && tmp > macd))
+    	    buy(getMaxActionToBuy());
+    	else
+    	    wait();
+    }
 
-    // if (kTab[last] > 80)
-    // 	sell(actions);
-    // else if (kTab[last] < 20)
-    // 	buy(Math.floor(getMaxActionToBuy() / 1));
-    // else
-    // 	wait();   
+	// if (kTab[last] > 80)
+	// 	sell(actions);
+	// else if (kTab[last] < 20)
+	// 	buy(Math.floor(getMaxActionToBuy() / 1));
+	// else
+	// 	wait();   
 
     // var tmp = getMMA(macdTab, 10);
     // if (tmp < macd)
@@ -200,7 +231,7 @@ function decisionMaker(day) {
     // else
     // 	wait();
 
-    //do not work
+    // do not work
     // if (macd < 0)
     // 	sell(actions);
     // else if (macd > 0)
