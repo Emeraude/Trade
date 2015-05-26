@@ -197,9 +197,16 @@ function decisionMaker(day) {
     // console.error('mma5 is: ' + mma5);
     // console.error('capital is: ' + capital);
 
-    if (getMMA(values, day) < values[last]) {
+    // last days
+    if (day > days - 20 && mma5 < mma30) {
+	if (values[last] < values[last - 1] && values[last] < values[last - 2])
+    	    sell(actions);
+	else
+	    wait();
+    }
+    else if (getMMA(values, day) < values[last]) {
     	var tmp = getMMA(macdTab, 10);
-    	if ((mma5 < mma30 && kTab[last] > 80) || (kTab[last] > 80) && tmp < macd)
+	if ((mma5 < mma30 && kTab[last] > 80) || (kTab[last] > 80) && tmp < macd)
     	    sell(actions);
     	else if ((kTab[last] < 20 && tmp > macd))
     	    buy(getMaxActionToBuy());
@@ -208,7 +215,7 @@ function decisionMaker(day) {
     } else {
 	
     	var tmp = getMMA(macdTab, 10);
-    	if ((mma5 < mma30 && kTab[last] > 80) || (kTab[last] > 80) && tmp < macd)
+	if ((mma5 < mma30 && kTab[last] > 80) || (kTab[last] > 80) && tmp < macd)
     	    sell(actions);
     	else if ((mma5 > mma30 && kTab[last]) || (kTab[last] < 20 && tmp > macd))
     	    buy(getMaxActionToBuy());
