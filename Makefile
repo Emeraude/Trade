@@ -13,7 +13,7 @@ $(NAME):	$(OBJ)
 clean:
 fclean:
 		@$(RM) $(NAME)
-		@printf "[\033[0;31mdeleted\033[0m] % 30s\n" $(NAME) | sed "s/ /./4g"
+		@printf "[\033[0;31mdeleted\033[0m] % 31s\n" $(NAME) | sed "s/ /./4g"
 
 re:		fclean all
 
