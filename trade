@@ -206,7 +206,7 @@ function decisionMaker(day) {
     ema12Tab.push(ema12);
     ema24Tab.push(ema24);
 
-    if (day < 400) {
+    if (day < 400 ||  (getMMA(values, day) > mma30 && day > 30)) {
     if (day > days - 20 && mma5 < mma30) {
     	if (values[last] < values[last - 1] && values[last] < values[last - 2])
     	    sell(actions);
