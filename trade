@@ -45,7 +45,6 @@ function sell(n) {
 
     console.log('sell ' + n);
     actions -= n;
-    // capital += Math.ceil(values[last] * n * 0.15 / 100)
     capital += values[last] * n - Math.ceil(values[last] * n * 0.15 / 100);
     history.push(-n);
 }
@@ -55,14 +54,10 @@ function buy(n) {
     	wait();
     	return ;
     }
-    // else 
-    console.error('capital before is:' + capital + ' n is : ' + n);
     console.log('buy ' + n);
     actions += n;
-    // capital -= Math.ceil(values[last] * n * 1.15);
     capital -= values[last] * n + Math.ceil(values[last] * n * 0.15 / 100);
     costAction = values[last];
-    console.error('capital after is:' + capital);
     history.push(n);
 }
 
@@ -207,88 +202,88 @@ function decisionMaker(day) {
     ema24Tab.push(ema24);
 
     if (day < 400 ||  (getMMA(values, day) > mma30 && day > 30)) {
-    if (day > days - 20 && mma5 < mma30) {
-    	if (values[last] < values[last - 1] && values[last] < values[last - 2])
-    	    sell(actions);
-    	else
-    	    wait();
-    }
-    else if (getMMA(values, day) < values[last]) {
-    	if (toBuy * 4 > getMaxActionToBuy())
-    	    toBuy = getMaxActionToBuy();
-    	else
-    	    toBuy *= 4;
-    	if (risk > 1)
-    	    --risk;
-    	var tmp = getMMA(macdTab, 10);
-    	if ((values[last] < getMMA(values, 3)) || (kTab[last] > 80 && tmp < macd)) {
-    	    sell(actions);
-    	    toBuy = 1;
+	if (day > days - 20 && mma5 < mma30) {
+    	    if (values[last] < values[last - 1] && values[last] < values[last - 2])
+    		sell(actions);
+    	    else
+    		wait();
+	}
+	else if (getMMA(values, day) < values[last]) {
+    	    if (toBuy * 4 > getMaxActionToBuy())
+    		toBuy = getMaxActionToBuy();
+    	    else
+    		toBuy *= 4;
+    	    if (risk > 1)
+    		--risk;
+    	    var tmp = getMMA(macdTab, 10);
+    	    if ((values[last] < getMMA(values, 3)) || (kTab[last] > 80 && tmp < macd)) {
+    		sell(actions);
+    		toBuy = 1;
+    		risk = 3;
+    	    }
+    	    else if ((mma5 > mma30 && kTab[last] < 20 && tmp > macd))
+    		buy(Math.floor(getMaxActionToBuy() / risk));
+    	    else
+    		wait();
+	} else {
     	    risk = 3;
-    	}
-    	else if ((mma5 > mma30 && kTab[last] < 20 && tmp > macd))
-    	    buy(Math.floor(getMaxActionToBuy() / risk));
-    	else
-    	    wait();
-    } else {
-    	risk = 3;
-    	if (toBuy * 2 > getMaxActionToBuy())
-    	    toBuy = getMaxActionToBuy();
-    	else
-    	    toBuy *= 2;
-    	var tmp = getMMA(macdTab, 10);
-    	if ((mma5 < mma30 && kTab[last] > 80) || (kTab[last] > 80) && tmp < macd) {
-    	    sell(actions);
-    	    toBuy = 1;
-    	}
-    	else if ((values[last] > getMMA(values, 3)) || (kTab[last] < 20 && tmp > macd))
-    	    buy(toBuy);
-    	else
-    	    wait();
-    }
+    	    if (toBuy * 2 > getMaxActionToBuy())
+    		toBuy = getMaxActionToBuy();
+    	    else
+    		toBuy *= 2;
+    	    var tmp = getMMA(macdTab, 10);
+    	    if ((mma5 < mma30 && kTab[last] > 80) || (kTab[last] > 80) && tmp < macd) {
+    		sell(actions);
+    		toBuy = 1;
+    	    }
+    	    else if ((values[last] > getMMA(values, 3)) || (kTab[last] < 20 && tmp > macd))
+    		buy(toBuy);
+    	    else
+    		wait();
+	}
     }
     else {
-    if (day > days - 20 && mma5 < mma30) {
-    	if (values[last] < values[last - 1] && values[last] < values[last - 2])
-    	    sell(actions);
-    	else
-    	    wait();
-    }
-    else if (getMMA(values, day) < values[last]) {
-    	if (toBuy * 4 > getMaxActionToBuy())
-    	    toBuy = getMaxActionToBuy();
-    	else
-    	    toBuy *= 4;
-    	if (risk > 1)
-    	    --risk;
-    	var tmp = getMMA(macdTab, 10);
-    	if ((kTab[last] > 80 && tmp < macd)) {
-    	    sell(actions);
-    	    toBuy = 1;
+	if (day > days - 20 && mma5 < mma30) {
+    	    if (values[last] < values[last - 1] && values[last] < values[last - 2])
+    		sell(actions);
+    	    else
+    		wait();
+	}
+	else if (getMMA(values, day) < values[last]) {
+    	    if (toBuy * 4 > getMaxActionToBuy())
+    		toBuy = getMaxActionToBuy();
+    	    else
+    		toBuy *= 4;
+    	    if (risk > 1)
+    		--risk;
+    	    var tmp = getMMA(macdTab, 10);
+    	    if ((kTab[last] > 80 && tmp < macd)) {
+    		sell(actions);
+    		toBuy = 1;
+    		risk = 3;
+    	    }
+    	    else if ((kTab[last] < 20 && tmp > macd))
+    		buy(Math.floor(getMaxActionToBuy() / risk));
+    	    else
+    		wait();
+	} else {
     	    risk = 3;
-    	}
-    	else if ((kTab[last] < 20 && tmp > macd))
-    	    buy(Math.floor(getMaxActionToBuy() / risk));
-    	else
-    	    wait();
-    } else {
-    	risk = 3;
-    	if (toBuy * 2 > getMaxActionToBuy())
-    	    toBuy = getMaxActionToBuy();
-    	else
-    	    toBuy *= 2;
-    	var tmp = getMMA(macdTab, 10);
-    	if ((mma5 < mma30 && kTab[last] > 80) || (kTab[last] > 80) && tmp < macd) {
-    	    sell(actions);
-    	    toBuy = 1;
-    	}
-    	else if ((mma5 > mma30 && kTab[last]) || (kTab[last] < 20 && tmp > macd))
-    	    buy(toBuy);
-    	else
-    	    wait();
-    }
+    	    if (toBuy * 2 > getMaxActionToBuy())
+    		toBuy = getMaxActionToBuy();
+    	    else
+    		toBuy *= 2;
+    	    var tmp = getMMA(macdTab, 10);
+    	    if ((mma5 < mma30 && kTab[last] > 80) || (kTab[last] > 80) && tmp < macd) {
+    		sell(actions);
+    		toBuy = 1;
+    	    }
+    	    else if ((mma5 > mma30 && kTab[last] < 20) || (kTab[last] < 20 && tmp > macd))
+    		buy(toBuy);
+    	    else
+    		wait();
+	}
 
-}
+    }
 }
 
 var dir = "print/";
@@ -308,15 +303,15 @@ function main() {
 	    wait();
     	else if (i > 2) {
     	    values.push(parseInt(data, 10));
-	fs.writeFile(dir + "ibm_data.txt", JSON.stringify(values));
-	fs.writeFile(dir + "ibm_ktab.txt", JSON.stringify(kTab));
-	fs.writeFile(dir + "ibm_macd.txt", JSON.stringify(macdTab));
-	fs.writeFile(dir + "ibm_dtab.txt", JSON.stringify(dTab));
-	fs.writeFile(dir + "ibm_mma5.txt", JSON.stringify(mma5Tab));
-	fs.writeFile(dir + "ibm_mma30.txt", JSON.stringify(mma30Tab));
-	fs.writeFile(dir + "ibm_mma150.txt", JSON.stringify(mma150Tab));
-	fs.writeFile(dir + "ibm_ema12.txt", JSON.stringify(ema12Tab));
-	fs.writeFile(dir + "ibm_ema24.txt", JSON.stringify(ema24Tab));
+	    fs.writeFile(dir + "ibm_data.txt", JSON.stringify(values));
+	    fs.writeFile(dir + "ibm_ktab.txt", JSON.stringify(kTab));
+	    fs.writeFile(dir + "ibm_macd.txt", JSON.stringify(macdTab));
+	    fs.writeFile(dir + "ibm_dtab.txt", JSON.stringify(dTab));
+	    fs.writeFile(dir + "ibm_mma5.txt", JSON.stringify(mma5Tab));
+	    fs.writeFile(dir + "ibm_mma30.txt", JSON.stringify(mma30Tab));
+	    fs.writeFile(dir + "ibm_mma150.txt", JSON.stringify(mma150Tab));
+	    fs.writeFile(dir + "ibm_ema12.txt", JSON.stringify(ema12Tab));
+	    fs.writeFile(dir + "ibm_ema24.txt", JSON.stringify(ema24Tab));
 	    macdTab.push(getMACD());
 	    decisionMaker(last);
 	    ++last;
