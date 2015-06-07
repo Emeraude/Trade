@@ -6,5 +6,5 @@ cd `dirname $0`
 
 for file in `ls examples/*.txt examples/*.TXT`; do
     echo -e "\033[36m$(basename $file)\033[0m"
-    ./moulinette.php -f $file -p main.js -m $money
+    ./moulinette.php -f $file -p trade -m $money
 done
